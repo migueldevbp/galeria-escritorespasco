@@ -14,91 +14,83 @@
     html,body{height:100%}
     body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: linear-gradient(180deg,#0f1724 0%, #0b0f1a 60%); color:#efe7dc;}
     .serif{font-family:'Poppins', sans-serif} 
-    /* Paper texture */
     .paper-bg{background-image: radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 8px 8px;}
-
     header{backdrop-filter: blur(6px)}
     .card{transition: transform .28s cubic-bezier(.2,.9,.3,1), box-shadow .28s;}
-    .card:hover{transform: translateY(-8px) scale(1.01); box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    .card:hover{transform: translateY(-6px) scale(1.01); box-shadow:0 8px 30px rgba(2,6,23,0.6)}
     .avatar{width:84px;height:84px;object-fit:cover;border-radius:9999px;border:3px solid rgba(255,255,255,0.04)}
+    /* small devices adjustments */
+    @media (max-width:640px){
+      .avatar{width:64px;height:64px}
+      header .site-title { font-size:1.05rem; }
+      .logo-small{height:28px !important}
+      .modal-card{padding:16px}
+      .modal-card img{width:84px;height:84px}
+      #modal .modal-card{max-width:92%; width:92%}
+      #bookModal .modal-card{flex-direction:column; align-items:center; text-align:center}
+      #bookModal img{width:60%; max-width:320px}
+      .book-chip{font-size:0.9rem;padding:7px 10px}
+      .typewriter { font-size:1.05rem }
+    }
 
-    /* Nostalgic modal styles */
+    /* modal */
     #modal{display:none;position:fixed;inset:0;align-items:center;justify-content:center;z-index:50}
     .modal-backdrop{position:absolute;inset:0;background:linear-gradient(180deg, rgba(4,6,12,0.6), rgba(4,6,12,0.8));backdrop-filter: blur(4px)}
-    .modal-card{position:relative;max-width:900px;width:94%;border-radius:16px;padding:28px;background:linear-gradient(180deg, rgba(249,243,235,0.02), rgba(3,7,10,0.5));box-shadow:0 20px 60px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.04)}
-
-    /* Cultural SVG motif behind modal */
+    .modal-card{position:relative;max-width:900px;width:94%;border-radius:14px;padding:22px;background:linear-gradient(180deg, rgba(249,243,235,0.02), rgba(3,7,10,0.5));box-shadow:0 20px 60px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.04)}
     .motif{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center}
     .motif svg{width:120%;height:120%;opacity:0.06;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.6))}
-
-    /* typewriter effect */
-    .typewriter { overflow: hidden; border-right: .15em solid rgba(255,255,255,0.08); white-space: nowrap; letter-spacing: .03em; animation: typing 1.6s steps(30,end), blink-caret .8s step-end infinite; }
+    .typewriter { overflow: hidden; border-right: .12em solid rgba(255,255,255,0.08); white-space: nowrap; letter-spacing: .02em; animation: typing 1.6s steps(30,end), blink-caret .8s step-end infinite; }
     @keyframes typing { from { width: 0 } to { width: 100% } }
     @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: rgba(255,255,255,0.08) } }
-
-    /* Pop-in animation */
     .pop-in{ animation: pop .36s cubic-bezier(.2,.9,.3,1) both }
     @keyframes pop{ from{ transform: translateY(20px) scale(.98); opacity:0 } to{ transform: translateY(0) scale(1); opacity:1 } }
-
-    /* Books grid */
     .book-chip{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:8px 12px; border-radius:10px; font-size:0.95rem}
 
-    /* QR panel */
-    #qrPanel{transition:transform .28s ease-in-out}
+    /* logo slide */
+    .animate-logoSlide{ animation: logoSlide 12s linear infinite; }
+    @keyframes logoSlide{ 0%{ transform: translateX(0); } 100%{ transform: translateX(-50%); } }
 
-    /* responsive tweaks */
-    @media (min-width:1024px){ .avatar{width:96px;height:96px} }
-    .animate-logoSlide{
-      animation: logoSlide 12s linear infinite;
-    }
-    @keyframes logoSlide{
-      0%{ transform: translateX(0); }
-      100%{ transform: translateX(-50%); }
-    }
-
-    /* small helper for book modal responsiveness */
-    @media (max-width:640px){
-      .modal-card { padding: 18px; }
-      #bookModal .modal-card { flex-direction: column; align-items: center; text-align: center; }
-      #bookModal img { width: 60%; max-width: 320px; }
-    }
-</style>
+    /* accessible focus */
+    .card:focus-within, .openBtn:focus { outline: 3px solid rgba(168,107,58,0.18); outline-offset: 4px; }
+  </style>
 </head>
 <body class="min-h-screen">
-  <header class="max-w-6xl mx-auto p-6 flex items-center justify-between">
-    <div class="flex items-center gap-4">
+  <!-- header: responsive stacked on small screens -->
+  <header class="max-w-6xl mx-auto p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-4 w-full sm:w-auto">
       <div class="flex items-center gap-3 overflow-hidden relative" style="width:160px; height:40px;">
         <div class="absolute flex gap-6 animate-logoSlide items-center" style="white-space:nowrap;">
           <img src="logos/ministerio-cultura.png" alt="Ministerio de Cultura" class="logo-small" style="height:36px;" onerror="this.style.display='none'">
           <img src="logos/gobierno-pasco.png" alt="Gobierno Regional Pasco" class="logo-small" style="height:36px;" onerror="this.style.display='none'">
           <img src="logos/ies-pasco.png" alt="IES Pasco" class="logo-small" style="height:36px;" onerror="this.style.display='none'">
-          <!-- repeat for infinite loop -->
-          <img src="logos/ministerio-cultura.png" alt="Ministerio de Cultura" class="logo-small" style="height:36px; opacity:0.6;" onerror="this.style.display='none'">
-          <img src="logos/gobierno-pasco.png" alt="Gobierno Regional Pasco" class="logo-small" style="height:36px; opacity:0.6;" onerror="this.style.display='none'">
-          <img src="logos/ies-pasco.png" alt="IES Pasco" class="logo-small" style="height:36px; opacity:0.6;" onerror="this.style.display='none'">
+          <img src="logos/ministerio-cultura.png" alt="" class="logo-small" style="height:36px; opacity:0.6;" onerror="this.style.display='none'">
+          <img src="logos/gobierno-pasco.png" alt="" class="logo-small" style="height:36px; opacity:0.6;" onerror="this.style.display='none'">
+          <img src="logos/ies-pasco.png" alt="" class="logo-small" style="height:36px; opacity:0.6;" onerror="this.style.display='none'">
         </div>
       </div>
-      <div>
-        <h1 class="text-2xl font-extrabold serif">Galería de Escritores</h1>
-        <p class="text-sm text-slate-300">MINISTERIO DE CULTURA - PASCO</p>
+      <div class="site-title">
+        <h1 class="text-xl sm:text-2xl font-extrabold serif">Galería de Escritores</h1>
+        <p class="text-xs sm:text-sm text-slate-300">MINISTERIO DE CULTURA — IES Pasco</p>
       </div>
     </div>
-    <div class="flex items-center gap-4">
+
+    <div class="flex items-center gap-3 self-end sm:self-auto">
       <button id="qrBtn" class="px-3 py-2 rounded-md bg-slate-800/40 hover:bg-slate-800/60">Mostrar QR</button>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto p-6">
+  <main class="max-w-6xl mx-auto p-4 sm:p-6">
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <input id="search" class="w-full sm:w-1/2 p-3 rounded-lg bg-slate-800/40 border border-slate-700 placeholder:text-slate-400" placeholder="Busca por nombre, libro o palabra clave...">
+      <input id="search" class="w-full sm:w-1/2 p-3 rounded-lg bg-slate-800/40 border border-slate-700 placeholder:text-slate-400" placeholder="Busca por nombre, libro o palabra clave..." aria-label="Buscar escritores">
       <div class="flex gap-2">
-        <select id="sort" class="p-3 rounded-lg bg-slate-800/40 border border-slate-700">
+        <select id="sort" class="p-3 rounded-lg bg-slate-800/40 border border-slate-700" aria-label="Ordenar escritores">
           <option value="name">Ordenar: nombre</option>
           <option value="books">Ordenar: cantidad de libros</option>
         </select>
       </div>
     </div>
 
+    <!-- responsive grid: 1 / 2 / 3 / 4 columns -->
     <section id="grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 paper-bg p-4 rounded-2xl">
     </section>
 
@@ -110,59 +102,44 @@
   </main>
 
   <!-- Modal -->
-  <div id="modal">
+  <div id="modal" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-backdrop"></div>
     <div class="motif" aria-hidden>
-      <!-- Cultural vector motif: stylized Cerro de Pasco mountains + textile pattern -->
-      <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img">
-        <defs>
-          <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0" stop-color="#fff" stop-opacity="1"/>
-            <stop offset="1" stop-color="#a86b3a" stop-opacity="1"/>
-          </linearGradient>
-        </defs>
-        <rect width="1200" height="600" fill="none" />
-        <g transform="translate(60,80)">
-          <path d="M0 420 L120 260 L240 380 L360 240 L480 360 L600 200 L720 340 L840 220 L960 360 L1080 180 L1200 420 L1200 600 L0 600 Z" fill="url(#g1)"/>
-          <circle cx="980" cy="120" r="48" fill="rgba(255,255,255,0.2)" />
-          <!-- simple textile pattern -->
-          <g opacity="0.12" transform="translate(40,320)">
-            <rect x="0" y="0" width="1120" height="120" fill="#151516" />
-            <g stroke="#fff" stroke-width="2" stroke-opacity="0.06">
-              <path d="M0 10 h1120 M0 30 h1120 M0 50 h1120 M0 70 h1120" />
-            </g>
-          </g>
-        </g>
+      <!-- Cultural vector motif -->
+      <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+        <defs><linearGradient id="g1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#a86b3a" stop-opacity="1"/></linearGradient></defs>
+        <g transform="translate(60,80)"><path d="M0 420 L120 260 L240 380 L360 240 L480 360 L600 200 L720 340 L840 220 L960 360 L1080 180 L1200 420 L1200 600 L0 600 Z" fill="url(#g1)"/></g>
       </svg>
     </div>
-    <div class="modal-card pop-in">
-      <div class="flex items-start gap-6">
-        <img id="modalAvatar" class="w-28 h-28 rounded-full object-cover" src="" alt="">
+    <div class="modal-card pop-in" role="document">
+      <div class="flex items-start gap-4 sm:gap-6">
+        <img id="modalAvatar" class="w-20 h-20 sm:w-28 sm:h-28 rounded-full object-cover" src="" alt="" loading="lazy">
         <div class="flex-1">
-          <h2 id="modalName" class="text-2xl font-bold serif typewriter"></h2>
+          <h2 id="modalName" class="text-lg sm:text-2xl font-bold serif typewriter"></h2>
           <p id="modalBio" class="text-sm text-slate-300 mt-3"></p>
           <h3 class="text-sm text-amber-200/90 mt-4 uppercase tracking-wide">Sala — Libros publicados</h3>
           <div id="modalBooks" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3" role="list"></div>
         </div>
         <div class="flex flex-col gap-2">
-          <button id="closeModal" class="ml-4 text-slate-400 hover:text-white">Cerrar</button>
+          <button id="closeModal" class="ml-2 text-slate-400 hover:text-white">Cerrar</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="qrPanel" class="fixed right-6 bottom-6 hidden p-4 rounded-lg bg-slate-900/95 shadow-lg">
+  <!-- QR panel -->
+  <div id="qrPanel" class="fixed right-4 bottom-4 hidden p-3 sm:p-4 rounded-lg bg-slate-900/95 shadow-lg">
     <p class="text-sm mb-2">Escanea para ver el sitio:</p>
-    <img id="qrImage" src="" alt="QR" class="w-36 h-36 object-contain">
+    <img id="qrImage" src="" alt="QR" class="w-36 h-36 object-contain" loading="lazy">
   </div>
 
-  <!-- Book detail modal (cover + reseña) -->
-  <div id="bookModal" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; z-index:60">
+  <!-- Book modal -->
+  <div id="bookModal" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; z-index:60" aria-hidden="true">
     <div class="modal-backdrop" style="background:linear-gradient(180deg, rgba(2,4,10,0.6), rgba(2,4,10,0.9));"></div>
-    <div class="modal-card pop-in" style="max-width:760px; width:92%; display:flex; gap:20px; align-items:flex-start;">
-      <img id="bookCover" src="" alt="Portada" style="width:220px; height:auto; border-radius:8px; box-shadow:0 20px 50px rgba(2,6,23,0.6); object-fit:cover">
-      <div style="flex:1">
-        <h3 id="bookTitle" class="text-xl font-semibold serif"></h3>
+    <div class="modal-card pop-in" style="max-width:760px; width:92%; display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
+      <img id="bookCover" src="" alt="Portada" style="width:220px; height:auto; border-radius:8px; box-shadow:0 20px 50px rgba(2,6,23,0.6); object-fit:cover" loading="lazy">
+      <div style="flex:1; min-width:200px;">
+        <h3 id="bookTitle" class="text-lg sm:text-xl font-semibold serif"></h3>
         <p id="bookAuthor" class="text-sm text-slate-300 mt-1"></p>
         <h4 class="text-sm text-amber-200/90 mt-4 uppercase tracking-wide">Reseña breve</h4>
         <p id="bookReview" class="text-sm text-slate-300 mt-2 leading-relaxed"></p>
@@ -174,7 +151,7 @@
   </div>
 
   <script>
-    AOS.init({duration:700, once:true});
+    AOS.init({duration:600, once:true});
 
     const writers = [
       { 
@@ -477,16 +454,13 @@
         name:'Edmundo Américo Reyes Capcha',
         photo:'photos/15.jpg',
         bio:'Investigador regional dedicado a la microhistoria, tradición andina y memoria sociocultural de Pasco. Su obra reconstruye procesos locales mediante archivos, testimonios y análisis histórico, resaltando el rol de las comunidades en procesos nacionales y regionales.',
-
         books:[
           'San Pedro de Pillao en la Historia y en Chaupihuaranga',
           'Éxodo Retrospectivo de la Provincia Daniel Alcides Carrión',
           'Participación de los Pueblos de la Región Pasco en la Independencia del Perú y en la Guerra con Chile',
           'Aporte de los Pueblos y Participación de los Montoneros de Huánuco, Pasco y Los Reyes en la Batalla de Junín'
         ],
-
         reviews:[
-
               `Estudio local y etnográfico que recupera la memoria histórica de San Pedro de Pillao y su entorno inmediato en Chaupihuaranga. A partir de documentos comunales, testimonios orales y archivos municipales, el autor reconstruye procesos de asentamiento, prácticas festivas, organización social y momentos significativos de la vida comunitaria. Su propósito es preservar la microhistoria andina y ofrecer un texto accesible para lectores locales y estudiosos de la región.`,
               `Obra que combina historia regional y arqueología interpretativa para explicar los movimientos poblacionales y transformaciones socioculturales en la provincia Daniel Alcides Carrión. Reyes Capcha analiza migraciones internas, cambios territoriales y factores económicos —como minería y agricultura— dentro del marco histórico-cultural de la nación Yaros, planteando una mirada integral del pasado regional.`,
               `Investigación que examina la participación de los pueblos pasqueños en dos momentos cruciales del Perú: la independencia y la Guerra con Chile. El autor rescata episodios y actores frecuentemente invisibilizados por las narrativas nacionales, destacando montoneras, oficiales locales, redes de apoyo y las consecuencias sociales que estos conflictos dejaron en las comunidades de Pasco.`,
@@ -498,7 +472,6 @@
         name:'Alex Nelson Tucto Villanueva',
         photo:'photos/16.jpg',
         bio:'Investigador, escritor y cronista de la historia minera y social de Pasco. Su obra combina narrativa histórica, memoria comunitaria y documentación archivística, destacándose por reconstruir identidades locales, procesos mineros y experiencias humanas vinculadas al territorio andino.',
-
         books:[
           'Estrella caída – Ccuyllur ishquishga',
           'Cerro de Pasco Tierra Minera I',
@@ -511,170 +484,137 @@
           'Revista El Diamante – Ediciones 1 al 17',
           'Revista Lucero Goyllarino – Nº 4'
         ],
-
         reviews:[
-
       `Relato histórico y cultural sobre el distrito de Goyllarisquizga, cuyo nombre quechua significa “estrella caída”. El autor combina memoria colectiva, testimonios familiares y análisis social de la relación entre minería, identidad y vida comunitaria. La obra rescata raíces, historias y luchas de un pueblo marcado por la actividad minera y por la persistencia de sus tradiciones.`,
-
       `Investigación profunda sobre los orígenes y evolución de la minería en Cerro de Pasco. Analiza la era colonial, la explotación de la plata, relatos locales y testimonios inéditos. El autor rescata voces de mineros y pobladores, revelando la dimensión humana detrás del desarrollo minero y su impacto social, cultural y económico.`,
-
       `Obra que reconstruye la identidad histórica del distrito de Santa Ana de Tusi, el “pueblo caminante”. A través de documentos, entrevistas y memoria oral, describe migraciones, etapas prehispánicas y coloniales, costumbres y la construcción cultural del territorio. Es una afirmación identitaria dirigida a lectores locales y estudiosos regionales.`,
-
       `Análisis histórico y sociocultural de Paragsha, uno de los espacios más afectados por la actividad minera contemporánea. El autor combina testimonios, conflictos ambientales, memoria comunal y reflexión sobre la identidad. La obra visibiliza los costos humanos y ecológicos de la minería, y la resistencia de la comunidad frente al impacto extractivo.`,
-
-      `Reunión de veinte cuentos ambientados en Goyllarisquizga, que retratan con ternura y honestidad la vida de niños, mineros, mujeres y ancianos. El autor presenta la dureza de la vida minera, pero también la dignidad y sensibilidad de la comunidad, convirtiendo el libro en un valioso aporte literario y educativo.`,
-
+      `Reunión de veinte cuentos ambientados en Goyllarisquizga, que retratan con ternura y honesty la vida de niños, mineros, mujeres y ancianos. El autor presenta la dureza de la vida minera, pero también la dignidad y sensibilidad de la comunidad, convirtiendo el libro en un valioso aporte literario y educativo.`,
       `Estudio histórico y social de La Oroya, ciudad metalúrgica emblemática del Perú. Examina su formación, su crecimiento industrial y los efectos sociales y ambientales de la actividad metalúrgica. La narrativa combina archivos, entrevistas y análisis crítico para retratar las luces y sombras del desarrollo extractivo.`,
-
       `Continuación de su obra sobre Cerro de Pasco, centrada en transformaciones modernas, memorias mineras y desigualdades sociales. El autor profundiza en la resistencia comunitaria y en los cambios del extractivismo contemporáneo. Es una obra accesible, con enfoque académico y testimonial.`,
-
       `Libro visual e histórico sobre el ferrocarril central y su impacto en la sierra central del Perú. Describe la construcción del tren, su influencia en la economía, la movilidad y la cultura de las comunidades andinas. El autor rescata el valor simbólico y nostálgico del ferrocarril como motor del progreso y memoria colectiva.`,
-
       `Ediciones 1 al 17 de la revista cultural El Diamante, dirigidas y editadas por el autor, dedicadas a memoria histórica, identidad local, personajes, centros poblados y hechos relevantes de Pasco. Son un archivo cultural esencial que documenta tradiciones, celebraciones y procesos sociales de la región.`,
-
       `Número 4 de la revista Lucero Goyllarino, enfocada en temas académicos y memoria goyllarina. Bajo la dirección editorial del autor, refuerza la difusión cultural y la preservación histórica de la comunidad.`
         ]
       },
-
-     {
-      id:17,
-      name:'Elmer Baldeón Diego',
-      photo:'photos/17.jpg',
-      bio:'Docente, poeta e investigador de la cultura quechua y de la tradición vilcabambina. Su obra integra poesía, etnomusicología, educación intercultural y rescate de la memoria local. Destaca por su trabajo en lengua quechua, materiales didácticos y estudios sobre identidad y patrimonio cultural.',
-
-      books:[
-        'PIRWA — Poema andino',
-        'Campohuaylash y su influencia en la educación',
-        'PAKARINA — Poesía (Quechua)',
-        'La Nunca y Jamás Rendida — Vilcabamba',
-        'LLAQTA WATUCHIKUNA — Adivinanzas quechuas',
-        'Diccionario Quechua Central — Shimi Rimayninchi'
-      ],
-
-      reviews:[
-
+      {
+        id:17,
+        name:'Elmer Baldeón Diego',
+        photo:'photos/17.jpg',
+        bio:'Docente, poeta e investigador de la cultura quechua y de la tradición vilcabambina. Su obra integra poesía, etnomusicología, educación intercultural y rescate de la memoria local. Destaca por su trabajo en lengua quechua, materiales didácticos y estudios sobre identidad y patrimonio cultural.',
+        books:[
+          'PIRWA — Poema andino',
+          'Campohuaylash y su influencia en la educación',
+          'PAKARINA — Poesía (Quechua)',
+          'La Nunca y Jamás Rendida — Vilcabamba',
+          'LLAQTA WATUCHIKUNA — Adivinanzas quechuas',
+          'Diccionario Quechua Central — Shimi Rimayninchi'
+        ],
+        reviews:[
     `Poema de tradición andina que combina imágenes de la tierra, la memoria y los oficios campesinos mediante un diálogo quechua–español. La voz poética evoca montañas, lluvias y ritos comunitarios, con un tono ritual y testimonial. Las repeticiones y la economía verbal otorgan musicalidad oral, ideal para declamación y encuentros culturales.`,
-
     `Estudio etnomusicológico–pedagógico que analiza el “campo huaylash” como expresión cultural de Vilcabamba y como herramienta para la educación local. Ofrece historia, transcripción musical y propuestas didácticas para integrar el huaylash en el currículo escolar, resaltando su valor identitario, artístico y formativo.`,
-
     `Conjunto de poemas en quechua (runasimi) centrados en el origen, la memoria y la continuidad cultural. La obra privilegia la oralidad, la sonoridad y las imágenes ceremoniales vinculadas al mundo andino. Pensada para lectores bilingües o hablantes nativos, emplea traducciones fieles al sentido poético y comunitario.`,
-
     `Relato poético–histórico que retrata episodios de resistencia y recuperación social en Vilcabamba. Combina crónica local, prosa lírica y testimonios para construir una memoria afectiva del pueblo y sus protagonistas. Es útil para actividades escolares y proyectos de memoria histórica.`,
-
     `Compilación de adivinanzas quechuas (watuchikuna) con traducción y notas didácticas. Incluye variantes dialectales, usos tradicionales y propuestas para trabajar en aulas interculturales bilingües. Rescata la tradición lúdica andina y fortalece la transmisión del idioma a nuevas generaciones.`,
-
     `Diccionario del quechua central que reúne léxico básico y especializado con ejemplos, equivalencias en español y notas gramaticales. Es una herramienta práctica para docentes, estudiantes y traductores, ampliamente reconocida y registrada con ISBN en catálogos nacionales. Facilita la enseñanza y documentación del runasimi.`
-      ]
-    },
-    {
-      id:18,
-      name:'(Autor 18)',
-      photo:'photos/18.jpg',
-      bio:'Poeta y narrador de la sierra central cuya obra combina sensibilidad lírica, identidad andina y elementos míticos regionales. Su estilo destaca por integrar emociones íntimas con paisajes de altura, así como por incorporar figuras tradicionales como el muqui dentro de relatos contemporáneos.',
-
-      books:[
-        'Un beso en la púrpura nieve',
-        'Te amo en tu amanecer',
-        'El muqui viene a mi colegio a jugar ajedrez'
-      ],
-
-      reviews:[
-
+        ]
+      },
+      {
+        id:18,
+        name:'(Autor 18)',
+        photo:'photos/18.jpg',
+        bio:'Poeta y narrador de la sierra central cuya obra combina sensibilidad lírica, identidad andina y elementos míticos regionales. Su estilo destaca por integrar emociones íntimas con paisajes de altura, así como por incorporar figuras tradicionales como el muqui dentro de relatos contemporáneos.',
+        books:[
+          'Un beso en la púrpura nieve',
+          'Te amo en tu amanecer',
+          'El muqui viene a mi colegio a jugar ajedrez'
+        ],
+        reviews:[
     `Poemario que fusiona lirismo íntimo con paisajes andinos, donde la nieve se convierte en símbolo emocional de memoria, herida y belleza. Los versos, de tono contemplativo y musicalidad pausada, construyen imágenes en las que la “púrpura nieve” representa el encuentro entre el frío de la cordillera y la intensidad del amor.`,
-
     `Cuento breve que narra el despertar afectivo entre dos jóvenes en un pueblo serrano. El amanecer funciona como metáfora del inicio del amor y del descubrimiento personal. El relato destaca por su sencillez poética, su calidez emocional y su evocación de la naturaleza como testigo de la sensibilidad juvenil.`,
-
     `Relato que mezcla humor, fantasía andina y vida escolar contemporánea. Un niño descubre que el mítico muqui visita su colegio para jugar ajedrez, enseñando estrategia, paciencia y respeto por la tradición. Es un cuento atractivo para niños y docentes, que revaloriza la cultura minera dentro de un contexto cotidiano y educativo.`
-      ]
-    },
-    {
-      id:19,
-      name:'Gustavo Atilio Córdova Guadalupe',
-      photo:'photos/19.jpg',
-      bio:'Escritor, productor cultural y defensor de la identidad pasqueña. Desde Cerro de Pasco, ha dedicado más de tres décadas a la difusión cultural a través del programa Estampas Pasqueñas, convirtiéndolo en un espacio de memoria, resistencia y orgullo regional. Su obra busca narrar a Pasco desde la voz de su propia gente, preservando tradiciones, arte y patrimonio.',
-
-      books:[
-        'Huaraucaca: historia, identidad y emprendimiento',
-        'Revista Cultura Tiempo',
-        'Revista Herranza Andina en el Bicentenario',
-        'Afiche en honor al Señor de Exaltación',
-        'Afiche en honor a la Virgen del Rosario',
-        'Afiche Histórico de Pasco',
-        'Afiche de la Herranza Andina',
-        'Afiche de la Chunguinada',
-        'Afiche de la llegada del primer tren de pasajeros (1904)',
-        'Afiche Calixtrada Cerreña 2025',
-        'Afiche Awki Danza'
-      ],
-
-      reviews:[
-
+        ]
+      },
+      {
+        id:19,
+        name:'Gustavo Atilio Córdova Guadalupe',
+        photo:'photos/19.jpg',
+        bio:'Escritor, productor cultural y defensor de la identidad pasqueña. Desde Cerro de Pasco, ha dedicado más de tres décadas a la difusión cultural a través del programa Estampas Pasqueñas, convirtiéndolo en un espacio de memoria, resistencia y orgullo regional. Su obra busca narrar a Pasco desde la voz de su propia gente, preservando tradiciones, arte y patrimonio.',
+        books:[
+          'Huaraucaca: historia, identidad y emprendimiento',
+          'Revista Cultura Tiempo',
+          'Revista Herranza Andina en el Bicentenario',
+          'Afiche en honor al Señor de Exaltación',
+          'Afiche en honor a la Virgen del Rosario',
+          'Afiche Histórico de Pasco',
+          'Afiche de la Herranza Andina',
+          'Afiche de la Chunguinada',
+          'Afiche de la llegada del primer tren de pasajeros (1904)',
+          'Afiche Calixtrada Cerreña 2025',
+          'Afiche Awki Danza'
+        ],
+        reviews:[
     `Obra mayor en la que el autor rescata la memoria histórica y cultural de Huaraucaca. Explora el proceso de repartición de tierras del ex latifundio Algolan, la identidad minera del pueblo y el espíritu emprendedor de sus empresas comunales. Es un trabajo que combina archivo, testimonios y una mirada profunda a las raíces locales.`,
-
     `Publicación cultural nacida desde su labor en Estampas Pasqueñas, dedicada a difundir arte, historia y tradición regional. La revista funciona como plataforma para preservar narraciones comunitarias y fortalecer la identidad pasqueña.`,
-
     `Edición especial elaborada para el Bicentenario, centrada en la tradición de la Herranza Andina. Combina historia, simbolismo ritual y actualidad cultural, reafirmando la vigencia de esta expresión artística en la región.`,
-
     `Serie de afiches dedicados al Señor de Exaltación, concebidos como homenajes visuales a una de las celebraciones más importantes del calendario religioso local. Destacan por su valor patrimonial y su papel en la preservación gráfica de la fe cerreña.`,
-
     `Afiche dedicado a la Virgen del Rosario, que recoge elementos devocionales y estéticos propios de la tradición andina y del imaginario pasqueño. Una pieza que combina arte visual y memoria festiva.`,
-
     `Afiche que presenta una síntesis visual de la trayectoria histórica de Pasco: sus momentos clave, sus personajes y su identidad minera. Funciona como material divulgativo, patrimonial y educativo.`,
-
     `Afiche que celebra y documenta la Herranza Andina, resaltando danzas, vestimentas, música y ritualidad agrícola. Es uno de los aportes más importantes del autor al registro cultural regional.`,
-
     `Afiche dedicado a la Chunguinada, danza emblemática del folclore cerreño. El autor logra capturar la fuerza estética y musical del baile, preservando un ícono de la identidad local.`,
-
     `Afiche histórico que conmemora la llegada del primer tren de pasajeros en 1904. Es un documento gráfico que rescata un hito fundamental en la transformación económica y social de la región.`,
-
     `Afiche dedicado a la Calixtrada Cerreña 2025, elaborado con sentido celebratorio y patrimonial. Destaca por su diseño y por su compromiso con la promoción de tradiciones contemporáneas.`,
-
     `Afiche Awki Danza que rinde homenaje a esta expresión ritual y ancestral. Representa una síntesis entre tradición, memoria y fuerza simbólica del mundo andino.`
-      ]
-    },
-
+        ]
+      }
     ];
 
+    // --- RENDERING & BEHAVIOR (mejoras para móviles)
     const grid = document.getElementById('grid');
     const search = document.getElementById('search');
     const sort = document.getElementById('sort');
 
-    function render(list){
-      grid.innerHTML = '';
-      list.forEach(w => {
-        const card = document.createElement('article');
-        card.className = 'card bg-slate-800/30 p-4 rounded-2xl shadow-md';
-        card.setAttribute('data-aos','fade-up');
-        card.innerHTML = `
-          <div class="flex items-center gap-4">
-            <img src="${w.photo}" alt="${w.name}" class="avatar">
-            <div class="flex-1">
-              <h3 class="text-lg font-semibold serif">${w.name}</h3>
-              <p class="text-sm text-slate-300 mt-1 line-clamp-2">${w.bio}</p>
-              <div class="mt-3 flex items-center gap-2">
-                <button class="openBtn px-3 py-1 rounded-md bg-amber-700/90 text-white">Ver ficha</button>
-                <span class="text-xs text-slate-400">${w.books.length} libro(s)</span>
-              </div>
+    function createCard(w){
+      const card = document.createElement('article');
+      card.className = 'card bg-slate-800/30 p-4 rounded-2xl shadow-md focus:outline-none';
+      card.setAttribute('data-aos','fade-up');
+      card.tabIndex = 0;
+      card.innerHTML = `
+        <div class="flex items-center gap-4">
+          <img src="${w.photo}" alt="${w.name}" class="avatar" loading="lazy">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base sm:text-lg font-semibold serif">${w.name}</h3>
+            <p class="text-sm text-slate-300 mt-1 line-clamp-3">${w.bio}</p>
+            <div class="mt-3 flex items-center gap-2">
+              <button class="openBtn px-3 py-1 rounded-md bg-amber-700/90 text-white">Ver ficha</button>
+              <span class="text-xs text-slate-400">${w.books.length} libro(s)</span>
             </div>
           </div>
-        `;
-        card.querySelector('.openBtn').addEventListener('click',()=>openModal(w));
-        grid.appendChild(card);
-      });
+        </div>
+      `;
+      card.querySelector('.openBtn').addEventListener('click', ()=> openModal(w));
+      card.addEventListener('keydown', (e)=>{ if(e.key==='Enter') openModal(w); });
+      return card;
+    }
+
+    function render(list){
+      grid.innerHTML = '';
+      list.forEach(w => grid.appendChild(createCard(w)));
       AOS.refresh();
     }
 
+    // Modal open
     function openModal(w){
-      document.getElementById('modal').style.display = 'flex';
+      const modal = document.getElementById('modal');
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden','false');
       const avatar = document.getElementById('modalAvatar');
       avatar.src = w.photo;
       avatar.alt = w.name;
       const nameEl = document.getElementById('modalName');
       nameEl.textContent = w.name;
-      // restart typewriter animation
-      nameEl.classList.remove('typewriter');
-      void nameEl.offsetWidth;
-      nameEl.classList.add('typewriter');
+      // restart typewriter
+      nameEl.classList.remove('typewriter'); void nameEl.offsetWidth; nameEl.classList.add('typewriter');
 
       document.getElementById('modalBio').textContent = w.bio;
       const mb = document.getElementById('modalBooks');
@@ -688,11 +628,15 @@
         el.addEventListener('click', ()=> openBook(w, b, idx));
         mb.appendChild(el);
       });
+
+      // focus trap minimal: focus close button
+      document.getElementById('closeModal').focus();
     }
 
-    document.getElementById('closeModal').addEventListener('click',()=>{ document.getElementById('modal').style.display='none'; });
-    document.getElementById('modal').addEventListener('click',(e)=>{ if(e.target.id==='modal') document.getElementById('modal').style.display='none' });
+    document.getElementById('closeModal').addEventListener('click', ()=> { document.getElementById('modal').style.display='none'; document.getElementById('modal').setAttribute('aria-hidden','true'); });
+    document.getElementById('modal').addEventListener('click',(e)=>{ if(e.target.id==='modal') { document.getElementById('modal').style.display='none'; document.getElementById('modal').setAttribute('aria-hidden','true'); } });
 
+    // FILTERS
     function applyFilters(){
       const q = search.value.trim().toLowerCase();
       let filtered = writers.filter(w=>{
@@ -702,15 +646,16 @@
       else filtered = filtered.sort((a,b)=>a.name.localeCompare(b.name));
       render(filtered);
     }
-    search.addEventListener('input',applyFilters);
-    sort.addEventListener('change',applyFilters);
+    search.addEventListener('input', applyFilters);
+    sort.addEventListener('change', applyFilters);
 
     render(writers);
 
+    // QR button
     const qrBtn = document.getElementById('qrBtn');
     const qrPanel = document.getElementById('qrPanel');
     const qrImage = document.getElementById('qrImage');
-    qrBtn.addEventListener('click',()=>{
+    qrBtn.addEventListener('click', ()=>{
       const site = prompt('Pega la URL pública donde publicarás el sitio (ej: https://usuario.github.io/repo/)', 'https://tuusuario.github.io/tu-repo/');
       if(!site) return;
       const qrsrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(site)}`;
@@ -718,9 +663,9 @@
       qrPanel.classList.toggle('hidden');
     });
 
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ document.getElementById('modal').style.display='none'; document.getElementById('bookModal').style.display='none'; qrPanel.classList.add('hidden'); }});
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ document.getElementById('modal').style.display='none'; document.getElementById('bookModal').style.display='none'; qrPanel.classList.add('hidden'); }} );
 
-    // Open book detail (cover + breve reseña)
+    // BOOK modal
     function openBook(author, bookTitle, idx){
       const bm = document.getElementById('bookModal');
       const cover = document.getElementById('bookCover');
@@ -728,32 +673,29 @@
       const authorEl = document.getElementById('bookAuthor');
       const reviewEl = document.getElementById('bookReview');
 
-      // Try structured cover path: photos/covers/{authorId}_{idx+1}.jpg
       const coverPath = `photos/covers/${author.id}_${idx+1}.jpg`;
       cover.src = coverPath;
-      // if image fails to load, fallback to author's photo
       cover.onerror = () => { cover.src = author.photo; };
 
       title.textContent = bookTitle;
       authorEl.textContent = `Por ${author.name}`;
 
-      // Usar reseña real si existe en author.reviews
       let reseña = '';
       if (author.reviews && Array.isArray(author.reviews) && typeof author.reviews[idx] === 'string' && author.reviews[idx].trim() !== '') {
         reseña = author.reviews[idx];
       }
-
       if (!reseña) {
-        // texto por defecto si no hay reseña real
         reseña = `"${bookTitle}" es una obra de ${author.name} que invita a leer con nostalgia y reflexión. Aquí puedes agregar una reseña más detallada sobre el contenido, temas y contexto del libro.`;
       }
-
       reviewEl.textContent = reseña;
-      bm.style.display = 'flex';
-    }
 
-    document.getElementById('closeBookModal').addEventListener('click', ()=>{ document.getElementById('bookModal').style.display='none'; });
-    document.getElementById('bookModal').addEventListener('click',(e)=>{ if(e.target.id==='bookModal') document.getElementById('bookModal').style.display='none' });
-</script>
+      bm.style.display = 'flex';
+      bm.setAttribute('aria-hidden','false');
+      document.getElementById('closeBookModal').focus();
+    }
+    document.getElementById('closeBookModal').addEventListener('click', ()=>{ document.getElementById('bookModal').style.display='none'; document.getElementById('bookModal').setAttribute('aria-hidden','true'); });
+    document.getElementById('bookModal').addEventListener('click',(e)=>{ if(e.target.id==='bookModal') { document.getElementById('bookModal').style.display='none'; document.getElementById('bookModal').setAttribute('aria-hidden','true'); } });
+
+  </script>
 </body>
 </html>
