@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Galería de Escritores — IES Pasco</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--paper:#f5efe6;--accent:#a86b3a;--muted:#6b6b6b}
+    html,body{height:100%}
+    body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: linear-gradient(180deg,#0f1724 0%, #0b0f1a 60%); color:#efe7dc;}
+    .serif{font-family:'Poppins', sans-serif} 
+    /* Paper texture */
+    .paper-bg{background-image: radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 8px 8px;}
+
+    header{backdrop-filter: blur(6px)}
+    .card{transition: transform .28s cubic-bezier(.2,.9,.3,1), box-shadow .28s;}
+    .card:hover{transform: translateY(-8px) scale(1.01); box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    .avatar{width:84px;height:84px;object-fit:cover;border-radius:9999px;border:3px solid rgba(255,255,255,0.04)}
+
+    /* Nostalgic modal styles */
+    #modal{display:none;position:fixed;inset:0;align-items:center;justify-content:center;z-index:50}
+    .modal-backdrop{position:absolute;inset:0;background:linear-gradient(180deg, rgba(4,6,12,0.6), rgba(4,6,12,0.8));backdrop-filter: blur(4px)}
+    .modal-card{position:relative;max-width:900px;width:94%;border-radius:16px;padding:28px;background:linear-gradient(180deg, rgba(249,243,235,0.02), rgba(3,7,10,0.5));box-shadow:0 20px 60px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.04)}
+
+    /* Cultural SVG motif behind modal */
+    .motif{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center}
+    .motif svg{width:120%;height:120%;opacity:0.06;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.6))}
+
+    /* typewriter effect */
+    .typewriter { overflow: hidden; border-right: .15em solid rgba(255,255,255,0.08); white-space: nowrap; letter-spacing: .03em; animation: typing 1.6s steps(30,end), blink-caret .8s step-end infinite; }
+    @keyframes typing { from { width: 0 } to { width: 100% } }
+    @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: rgba(255,255,255,0.08) } }
+
+    /* Pop-in animation */
+    .pop-in{ animation: pop .36s cubic-bezier(.2,.9,.3,1) both }
+    @keyframes pop{ from{ transform: translateY(20px) scale(.98); opacity:0 } to{ transform: translateY(0) scale(1); opacity:1 } }
+
+    /* Books grid */
+    .book-chip{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:8px 12px; border-radius:10px; font-size:0.95rem}
+
+    /* QR panel */
+    #qrPanel{transition:transform .28s ease-in-out}
+
+    /* responsive tweaks */
+    @media (min-width:1024px){ .avatar{width:96px;height:96px} }
+    .animate-logoSlide{
+      animation: logoSlide 12s linear infinite;
+    }
+    @keyframes logoSlide{
+      0%{ transform: translateX(0); }
+      100%{ transform: translateX(-50%); }
+    }
+
+    /* small helper for book modal responsiveness */
+    @media (max-width:640px){
+      .modal-card { padding: 18px; }
+      #bookModal .modal-card { flex-direction: column; align-items: center; text-align: center; }
+      #bookModal img { width: 60%; max-width: 320px; }
+    }
+</style>
+</head>
+<body class="min-h-screen">
+  <header class="max-w-6xl mx-auto p-6 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 overflow-hidden relative" style="width:160px; height:40px;">
+        <div class="absolute flex gap-6 animate-logoSlide items-center" style="white-space:nowrap;">
+          <img src="logos/ministerio-cultura.png" alt="Ministerio de Cultura" class="logo-small" style="height:36px;" onerror="this.style.display='none'">
+          <img src="logos/gobierno-pasco.png" alt="Gobierno Regional Pasco" class="logo-small" style="height:36px;" onerror="this.style.display='none'">
+          <img src="logos/ies-pasco.png" alt="IES Pasco" class="logo-small" style="height:36px;" onerror="this.style.display='none'">
+          <!-- repeat for infinite loop -->
+          <img src="logos/ministerio-cultura.png" alt="Ministerio de Cultura" class="logo-small" style="height:36px; opacity:0.6;" onerror="this.style.display='none'">
+          <img src="logos/gobierno-pasco.png" alt="Gobierno Regional Pasco" class="logo-small" style="height:36px; opacity:0.6;" onerror="this.style.display='none'">
+          <img src="logos/ies-pasco.png" alt="IES Pasco" class="logo-small" style="height:36px; opacity:0.6;" onerror="this.style.display='none'">
+        </div>
+      </div>
+      <div>
+        <h1 class="text-2xl font-extrabold serif">Galería de Escritores</h1>
+        <p class="text-sm text-slate-300">MINISTERIO DE CULTURA - PASCO</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <button id="qrBtn" class="px-3 py-2 rounded-md bg-slate-800/40 hover:bg-slate-800/60">Mostrar QR</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <input id="search" class="w-full sm:w-1/2 p-3 rounded-lg bg-slate-800/40 border border-slate-700 placeholder:text-slate-400" placeholder="Busca por nombre, libro o palabra clave...">
+      <div class="flex gap-2">
+        <select id="sort" class="p-3 rounded-lg bg-slate-800/40 border border-slate-700">
+          <option value="name">Ordenar: nombre</option>
+          <option value="books">Ordenar: cantidad de libros</option>
+        </select>
+      </div>
+    </div>
+
+    <section id="grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 paper-bg p-4 rounded-2xl">
+    </section>
+
+    <footer class="mt-12 text-center text-sm text-slate-400">
+      <p>DISEÑADO Y DESARROLLADO EN EL INSTITUTO DE EDUCACIÓN SUPERIOR PASCO</p>
+      <p>CHRISTIAN ERNESTO MEZA CARMELO - DIRECTOR GENERAL</p>
+      <small style="font-size: 0.75em; color: gray;">© DERECHOS RESERVADOS MIGUEL A. BORJA PARRA APSTI</small>
+    </footer>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal">
+    <div class="modal-backdrop"></div>
+    <div class="motif" aria-hidden>
+      <!-- Cultural vector motif: stylized Cerro de Pasco mountains + textile pattern -->
+      <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+            <stop offset="1" stop-color="#a86b3a" stop-opacity="1"/>
+          </linearGradient>
+        </defs>
+        <rect width="1200" height="600" fill="none" />
+        <g transform="translate(60,80)">
+          <path d="M0 420 L120 260 L240 380 L360 240 L480 360 L600 200 L720 340 L840 220 L960 360 L1080 180 L1200 420 L1200 600 L0 600 Z" fill="url(#g1)"/>
+          <circle cx="980" cy="120" r="48" fill="rgba(255,255,255,0.2)" />
+          <!-- simple textile pattern -->
+          <g opacity="0.12" transform="translate(40,320)">
+            <rect x="0" y="0" width="1120" height="120" fill="#151516" />
+            <g stroke="#fff" stroke-width="2" stroke-opacity="0.06">
+              <path d="M0 10 h1120 M0 30 h1120 M0 50 h1120 M0 70 h1120" />
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="modal-card pop-in">
+      <div class="flex items-start gap-6">
+        <img id="modalAvatar" class="w-28 h-28 rounded-full object-cover" src="" alt="">
+        <div class="flex-1">
+          <h2 id="modalName" class="text-2xl font-bold serif typewriter"></h2>
+          <p id="modalBio" class="text-sm text-slate-300 mt-3"></p>
+          <h3 class="text-sm text-amber-200/90 mt-4 uppercase tracking-wide">Sala — Libros publicados</h3>
+          <div id="modalBooks" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3" role="list"></div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button id="closeModal" class="ml-4 text-slate-400 hover:text-white">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="qrPanel" class="fixed right-6 bottom-6 hidden p-4 rounded-lg bg-slate-900/95 shadow-lg">
+    <p class="text-sm mb-2">Escanea para ver el sitio:</p>
+    <img id="qrImage" src="" alt="QR" class="w-36 h-36 object-contain">
+  </div>
+
+  <!-- Book detail modal (cover + reseña) -->
+  <div id="bookModal" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; z-index:60">
+    <div class="modal-backdrop" style="background:linear-gradient(180deg, rgba(2,4,10,0.6), rgba(2,4,10,0.9));"></div>
+    <div class="modal-card pop-in" style="max-width:760px; width:92%; display:flex; gap:20px; align-items:flex-start;">
+      <img id="bookCover" src="" alt="Portada" style="width:220px; height:auto; border-radius:8px; box-shadow:0 20px 50px rgba(2,6,23,0.6); object-fit:cover">
+      <div style="flex:1">
+        <h3 id="bookTitle" class="text-xl font-semibold serif"></h3>
+        <p id="bookAuthor" class="text-sm text-slate-300 mt-1"></p>
+        <h4 class="text-sm text-amber-200/90 mt-4 uppercase tracking-wide">Reseña breve</h4>
+        <p id="bookReview" class="text-sm text-slate-300 mt-2 leading-relaxed"></p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button id="closeBookModal" class="text-slate-400 hover:text-white">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    AOS.init({duration:700, once:true});
+
+    const writers = [
+      { 
+        id:1,
+        name:'Jenny Pilar Huaricapcha Rojas',
+        photo:'photos/1.jpg',
+        bio:'Estudiante de Comunicación y Literatura. Becaria de Beca 18 y docente de nivel primario.',
+        books:['Desinfonía del corazón'],
+        reviews: [
+          `Desinfonía del corazón aparece con matices de primer amor a veces correspondido, otras entrampadas en el sufrimiento y por supuesto olvidada por esos avatares que la vida nos ofrece. Jenny canta al amor “Hay promesas que nacen con alas, pero las tuyas murieron antes de volar”; la desilusión es evidente, el amado no cumplió con la promesa dada, es más ni siquiera intentó cumplirla.`
+        ]
+      },
+      {
+        id:2,
+        name:'Máximo Estrada Bonifacio',
+        photo:'photos/2.jpg',
+        bio:'Licenciado en Educación (Lenguaje-Literatura). Magíster en Administración de la Educación. Maestro del Bicentenario. Autor de libros de estudio y literatura.',
+        books:[
+                'Manual de literatura e hispanoamericana (2001)',
+                'Organizadores de conocimiento (2002)',
+                'Conociendo mi idioma (2004)',
+                'Narraciones pasqueñas (2006)',
+                'Cuentos más cuentos (2007)',
+                'Los años en una noche (2008)',
+                'Comprendiendo lecturas (2009)',
+                'Guías metodológicas para mejorar la comprensión lectora en el nivel Inicial y Primaria',
+                'Cuentos pasqueños (2013)',
+                'Confesiones de un adicto (2015)',
+                'El rubicundo encantador y otros cuentos más (2017)',
+                'El fiambre del andandero (2019)',
+                'El desbocado, el precio del obrero y más cuentos (2021)',
+                'Revista Minera (2021)',
+                'Con los pantalones caídos (2024)',
+                'El duende dorado: relatos del Muqui (2025)'
+              ],
+        reviews:[
+                `Manual de literatura e hispanoamericana funciona como un texto de referencia docente —diseñado para apoyar la enseñanza de la literatura hispanoamericana en niveles escolares— que combina introducciones a autores, géneros y recursos didácticos básicos. Su enfoque es pedagógico y prioriza explicaciones claras y ejemplos para facilitar la enseñanza en aulas de secundaria y en formación docente.`,
+                `Volumen orientado a estrategias educativas para organizar contenidos curriculares; contiene instrumentos y modelos (mapas conceptuales, cuadros, secuencias) útiles para que docentes y estudiantes estructuren saberes. Es un material práctico para planificación y desarrollo de unidades didácticas.`,
+                `Texto pensado para primeros niveles educativos que presenta actividades de identificación y uso del lenguaje (fonética básica, vocabulario y ejercicios de comprensión elemental). Ideal para aulas de primaria y para docentes que trabajan la adquisición del lenguaje y la lectoescritura.`,
+                `Antología de relatos centrada en la región de Pasco: reúne narraciones que recuperan tradiciones, leyendas y memoria social local. El libro es tanto recurso para el lector general como herramienta para proyectos escolares de fomento de la lectura regional.`,
+                `Colección de cuentos breves que reúne tradición oral, fábulas contemporáneas y piezas anecdóticas; pensado para lectores jóvenes y adultos interesados en la narrativa local. Ofrece variedad temática y estilos que reflejan costumbres y voces de la sierra central.`,
+                `Obra narrativa que condensa vivencias o micro-relatos intensos; funciona como ejercicio literario y documento de memoria regional, reuniendo episodios que condensan años de experiencia en relatos concentrados.`,
+                `Manual pedagógico con ejercicios y estrategias para fortalecer la comprensión lectora en estudiantes; incluye fichas de trabajo y actividades graduadas. Es un recurso citado en trabajos académicos como material de refuerzo lector.`,
+                `Serie de guías prácticas destinadas a docentes de inicial y primaria con actividades, secuenciaciones y sugerencias metodológicas para desarrollar la comprensión lectora desde edades tempranas. Material aplicado y fácilmente integrable al currículo.`,
+                `Nueva recopilación que profundiza en temáticas pasqueñas —costumbres, leyendas mineras y sociales— mezclando crónica local con cuento popular. Reforzamiento de la identidad regional a través de la narrativa.`,
+                `Relato de corte confesional que aborda la experiencia (real o ficcionada) de la adicción; combina introspección y crítica social para dar voz a problemáticas personales y comunitarias vinculadas al consumo.`,
+                `Selección de cuentos con carga simbólica y crítica social; alterna tonos humorísticos y alegóricos para abordar problemas de la vida urbana y minera, siendo un volumen de referencia en estudios regionales.`,
+                `Colección que mezcla lo grotesco, lo popular y la crítica social; explora situaciones límite y personajes marginales desde la tradición oral y la experiencia de provincia, útil también para ejercicios de análisis textual.`,
+                `Antología de relatos con enfoque en denuncia social: conflictos laborales, abusos de poder y tensiones entre patrones y comunidades obreras. Obra de compromiso que combina testimonio local y ficción.`,
+                `Participación o número dedicado en una publicación vinculada a la temática minera; mezcla de artículos, crónicas y relatos donde el autor aporta perspectiva literaria y testimonios vinculados a la actividad extractiva en Pasco.`,
+                `Colección reciente de relatos de tono crítico y satírico que expone situaciones comprometedoras y episodios de vergüenza pública o corrupción moral; lectura ágil y de fuerte observación social.`,
+                `Antología centrada en la figura mitológica del Muqui: relatos fantásticos que reescriben mitos mineros en clave contemporánea, con énfasis en la memoria y las tradiciones de Pasco. (Presentada en la XIII Feria del Libro Pasco-2025).`
+              ]
+      },
+      {
+        id:3,
+        name:'Jenny Margot Cáceres Soto',
+        photo:'photos/3.jpg',
+        bio:'Escritora peruana orientada a literatura juvenil y obras de sensibilización emocional. Autora de la serie “Mi amada Mía” y de cuentos infantiles.',
+        books:[
+          'Mi amada Mía',
+          'Mi amada Mía en un eterno invierno',
+          'Mi amada Mía, el amor a través del tiempo',
+          'Shiro, el diario de una gatita carey'
+        ],
+        reviews:[
+                `Novela juvenil que relata la historia de amor de Mía, una adolescente que experimenta el descubrimiento del afecto, la amistad y los retos de crecer. Explora temas como identidad, vulnerabilidad emocional y la dificultad de amar por primera vez. Registrada bajo el ISBN 978-612-49074-4-9.`,
+                `Secuela de la primera novela, donde la relación de los protagonistas atraviesa un “eterno invierno” simbólico: etapas de dificultad, frialdad emocional y pruebas del amor frente a la distancia y los cambios personales. Amplía el arco narrativo profundizando en conflictos internos y resiliencia afectiva.`,
+                `Tercer volumen de la serie, centrado en la forma en que el amor evoluciona con el tiempo. Aborda la madurez, la memoria y la transformación de los sentimientos a lo largo de los años. Escrita con un lenguaje emotivo y esperanzador, está registrada oficialmente como obra de Jenny Margot Cáceres Soto.`,
+                `Cuento-diario narrado desde la voz de una gatita carey llamada Shiro. Dirigido a público infantil y familiar, combina ternura, humor y cotidianidad. Explora emociones simples, la amistad y el descubrimiento del mundo desde la mirada de una mascota. Presentado en ferias del libro como obra para mediación lectora.`
+        ]
+      }, 
+      {
+        id:4,
+        name:'Percy Rodríguez Tinco',
+        photo:'photos/4.jpg',
+        bio:'Licenciado en Biología y Química; Magíster en Medio Ambiente; especialista en pedagogía del ajedrez. Campeón pasqueño y representante en torneos FIDE. Autor de manuales formativos para entrenadores y estudiantes.',
+        books:[
+          'Entrenador de Ajedrez I',
+          'Entrenador de Ajedrez II'
+        ],
+        reviews:[
+                `Primer volumen orientado a la formación de jugadores principiantes y entrenadores escolares. Presenta los fundamentos del ajedrez: reglas, movimientos, principios de apertura, nociones básicas de medio juego y finales. Su enfoque es pedagógico, pensado para iniciar de manera progresiva en la disciplina. Percy Rodríguez Tinco, reconocido por su labor como entrenador pasqueño, estructura este libro como un recurso base para la enseñanza formal del ajedrez.`,
+                `Continuación del manual inicial (ISBN 978-612-49939-6-1), dirigido a jugadores y entrenadores que buscan un nivel intermedio. Desarrolla estrategias más profundas, tácticas de combinación, análisis de partidas y métodos de entrenamiento para jóvenes talentos. Diseñado como un material de perfeccionamiento, amplía los contenidos del primer volumen con un enfoque más competitivo y técnico.`
+        ]
+      },
+      {
+        id:5,
+        name:'Pablo La Madrid Vivar',
+        photo:'photos/5.jpg',
+        bio:'Docente universitario; poeta y autor de artículos sobre juvenilia. Su obra combina investigación literaria, poesía telúrica y narraciones que dialogan con la identidad cultural de Pasco.',
+        books:[
+          'Poesía sin palabras',
+          'Me olvidé de morir (y otros cuentos)',
+          'Tradición oral de la provincia de Pasco',
+          'Diablo Blanco',
+          'Vocecillas',
+          'Juvenilia en Ricardo Palma'
+        ],
+        reviews:[
+                `Este poemario reflexiona sobre la esencia misma de la poesía: cómo los silencios, gestos y experiencias pueden transmitir belleza sin necesidad de palabras. Se organiza en tres bloques —“Diario poético”, “Diario íntimo” y “Diario telúrico”— que exploran la concepción literaria del autor, los afectos familiares y la relación profunda con la tierra. La obra muestra influencias modernistas y simbolistas (Darío, Eguren) y destaca por su voz personal y emotiva.`,
+                `Reúne 14 cuentos que transitan entre lo fantástico, lo existencial y lo social. Desde relatos como “Encerrado en el espejo” hasta “Los magos”, los personajes se mueven entre laberintos emocionales y dilemas humanos. La contraportada lo describe como “una fiesta de la palabra donde la fantasía y la realidad se abrazan”. Es un libro que expone la fragilidad humana y la fusión entre lo cotidiano y lo extraordinario.`,
+                `Obra etnográfica y literaria construida junto a otros autores, centrada en leyendas, narraciones y voces de la provincia de Pasco. Basada en entrevistas a informantes —muchos de ellos adultos mayores—, recoge historias que revelan la dimensión religiosa, social y simbólica de la tradición oral local. Funciona como un aporte importante para la preservación de la memoria cultural de la región.`,
+                `Título emblemático dentro de la trayectoria poética y simbólica del autor. Aunque no circula una sinopsis formal detallada, “Diablo Blanco” se reconoce como parte fundamental de su obra vinculada a la denuncia cultural y al imaginario pasqueño.`,
+                `Obra asociada a la dimensión íntima y social de la poética de La Madrid Vivar. “Vocecillas” remite a murmullos, voces pequeñas o susurros del pueblo que son interpretados literariamente, enfatizando el diálogo entre lo personal y lo comunitario dentro de su estilo.`,
+                `Investigación dedicada al poemario “Juvenilia” de Ricardo Palma. El autor demuestra que esta obra juvenil representa el punto de partida literario de Palma, analiza su lenguaje romántico, su métrica y su influencia posterior en las Tradiciones peruanas. Resalta además que “Juvenilia” fue un neologismo creado por el propio Palma, reflejando el inicio de su sensibilidad literaria.`
+        ]
+      },
+      {
+        id:6,
+        name:'David Elí Salazar Espinoza',
+        photo:'photos/6.jpg',
+        bio:'Doctor en Literatura Peruana y Latinoamericana (UNMSM). Investigador de la tradición literaria de Pasco, editor de obras regionales y autor de estudios sobre narrativa minera, tradición oral y crítica literaria.',
+        books:[
+          'Destinos inciertos',
+          'Discursos del socavón',
+          'Proceso de la literatura pasqueña, Tomo I (Poesía)',
+          'Proceso de la literatura pasqueña, Tomo II (Narrativa)',
+          'Tradición oral de la provincia de Pasco, Tomo I',
+          'Tradición oral de la provincia de Pasco, Tomo II',
+          'Lectura crítica a “La Odisea de la Columna Pasco”',
+          'Al filo de la muralla'
+        ],
+        reviews:[
+                  `Volumen de seis cuentos ambientados en Cerro de Pasco, donde el autor retrata con realismo la vida marcada por la minería y los cambios de la modernidad provincial. Los personajes enfrentan riesgos del socavón, precariedad laboral y tensiones sociales. Según Marco Polo Taboada, los relatos usan técnicas del cuento moderno para denunciar desigualdades y revelar la complejidad existencial del mundo minero.`,
+                  `Tesis de crítica literaria en la que el autor analiza el “universo subterráneo” de la minería mediante un estudio semiótico del texto “En la noche infinita”. Examina metáforas, imaginarios y discursos asociados al socavón como espacio simbólico de lucha, magia, dolor y resistencia. La obra aporta una mirada profunda al lenguaje que construye la identidad minera en la literatura peruana.`,
+                  `Primer tomo de un amplio estudio literario sobre más de 50 poetas pasqueños. No es solo un registro, sino un análisis que identifica hitos, tendencias y marcas que configuran la tradición poética de Pasco. El autor destaca la necesidad de integrar la literatura regional al panorama nacional y de valorar su aporte histórico y estético.`,
+                  `Investigación dedicada a más de 50 narradores pasqueños, desde cuentistas y novelistas hasta transmisores de relatos orales. Analiza la evolución de la narrativa regional y su vínculo con la identidad cultural de Pasco, mostrando cómo las representaciones literarias han dialogado con los cambios sociales y políticos de la región.`,
+                  `Primer volumen etnográfico que recopila cerca de 100 textos orales provenientes de distritos como Pallanchacra, Ticlacayán, Yarusyacán, Huariaca y Simón Bolívar. A través de leyendas, mitos y testimonios, la obra preserva la tradición oral como patrimonio vivo y permite comprender la cosmovisión pasqueña.`,
+                  `Segundo tomo de la investigación, centrado en distritos como Tinyahuarco, Ninacaca, Paucartambo, Huachón, Huayllay y Vicco. Suma también casi 100 relatos inéditos que revelan la riqueza cultural de la sierra pasqueña, desde creencias ancestrales hasta vivencias cotidianas. Es un trabajo fundamental para la memoria oral regional.`,
+                  `Estudio literario en el que el autor analiza la obra “La Odisea de la Columna Pasco”, que narra la participación de voluntarios pasqueños en la Guerra del Pacífico. Examina su valor literario, histórico y simbólico, destacando la memoria colectiva y el sacrificio representado en la narrativa del conflicto.`,
+                  `Libro de nueve cuentos mineros que exploran la vida cotidiana de Cerro de Pasco. Los relatos presentan escenarios laborales difíciles, desigualdades sociales, identidades obreras y nostalgia por el pasado. Con una narrativa realista y simbólica, el autor retrata la dureza y humanidad de quienes viven bajo la sombra de la actividad minera.`
+        ]
+      },
+      {
+        id:7,
+        name:'Janes Nels López Rosas',
+        photo:'photos/7.jpg',
+        bio:'Docente y magíster. Autor de libros infantiles, poemarios y trabajos de mediación lectora. Su obra destaca por la sencillez expresiva, la preservación de la tradición oral y la formación literaria en contextos educativos.',
+        
+        books:[
+          'Morada Poética',
+          'Mi abuelita me contó (Tomo 1)',
+          'Mi abuelita me contó (Tomo 2)',
+          'Mi abuelita me contó (Tomo 3)',
+          'Cinco días en la vida de Lucrecia Parker — Análisis y adaptación'
+        ],
+
+        reviews:[
+                  `Conjunto lírico en el que el autor aborda la vida cotidiana desde una sensibilidad íntima y contemplativa. Los poemas recorren temas como el hogar, la memoria, la identidad andina y la introspección. La “morada” funciona como un símbolo de refugio emocional y espacio espiritual. Con un lenguaje accesible y limpio, la obra invita al lector a reflexionar sobre la belleza de lo simple.`,
+                  `Primer tomo de la trilogía infantil que recoge cuentos, leyendas y relatos familiares transmitidos por generaciones. Narrado con la ternura de una voz abuelita, reúne historias con valores, humor y enseñanzas, preservando elementos de la tradición oral andina. Sus personajes —animales parlantes, espíritus protectores y niños curiosos— destacan por su encanto pedagógico y cultural.`,
+                  `Segundo volumen de la serie, que continúa recuperando relatos breves y expresivos vinculados a la memoria comunitaria y familiar. Las historias mantienen el tono cálido y educativo del primer tomo, promoviendo la valoración de la oralidad y la identidad cultural en lectores infantiles y jóvenes.`,
+                  `Tercer tomo que consolida el proyecto de preservar la tradición oral a través de relatos accesibles, simbólicos y cargados de valores. Las narraciones fortalecen el vínculo entre generaciones y refuerzan el rol de la abuela como transmisora de saberes y narraciones que construyen identidad.`,
+                  `Análisis y adaptación pedagógica del poema de Felipe de Lucio Pezet. López Rosas contextualiza la obra, explica sus símbolos —la fugacidad del tiempo, el amor contemplativo y el destino— y propone actividades para la comprensión lectora. Es un trabajo que facilita la enseñanza literaria sin perder la esencia poética del texto original, convirtiéndose en un recurso valioso para docentes y estudiantes.`
+        ]
+      },
+      {
+        id:8,
+        name:'Esaú Birlín Fernández Ayala',
+        photo:'photos/8.jpg',
+        bio:'Docente y magíster en Educación Administrativa. Autor de poemarios y narraciones que exploran la memoria, la identidad regional y la sensibilidad cotidiana. Su obra combina lirismo, tradición oral y reflexión cultural.',
+        
+        books:[
+          'Llovizna en Verano',
+          'Voces Huancas',
+          'Contra tu Olvido y Otros poemas'
+        ],
+
+        reviews:[
+                  `Poemario en el que el autor despliega una voz lírica atravesada por imágenes del clima, la memoria y la vida cotidiana. La “llovizna” funciona como metáfora de recuerdos persistentes, pequeñas nostalgias que sobreviven incluso en tiempos luminosos o calurosos. Son poemas breves pero intensos, donde la delicadeza se mezcla con una sutil tensión emocional.`,
+                  `Conjunto de narraciones que recuperan voces, relatos y experiencias del ámbito huanca y, por extensión, de la región central del Perú. Con fuerte énfasis en la oralidad, el libro rescata historias ligadas a la identidad, la comunidad y la memoria colectiva. Está dirigido a lectores interesados en la narrativa regional y en la preservación de tradiciones locales.`,
+                  `Poemario centrado en la memoria, el amor, la pérdida y la lucha contra el olvido. La voz poética dialoga con la desmemoria y la insistencia afectiva, explorando sentimientos que resisten desaparecer. Publicada por Apogeo E.I.R.L., esta obra muestra madurez temática y formal, convirtiéndose en un aporte significativo para lectores de poesía contemporánea.`
+        ]
+      },
+      {
+        id:9,
+        name:'Lizbet Yovana Campos Meza',
+        photo:'photos/9.jpg',
+        bio:'Licenciada en Docencia Superior y abogada; Magíster en Derecho Penal. Reconocida por su labor académica y cultural. Su obra poética aborda la memoria, la identidad y las emociones profundas desde una sensibilidad andina.',
+        
+        books:[
+          'Dulce invierno en verano'
+        ],
+
+        reviews:[
+                `Poemario íntimo y reflexivo donde la autora combina lo emocional con lo telúrico. El “invierno” funciona como metáfora de la nostalgia interior que persiste aun en un “verano” externo lleno de vitalidad. A través de versos libres, Campos Meza evoca paisajes andinos, memoria, identidad y las luchas internas de la juventud. Su lenguaje, claro pero simbólico, revela una voz sincera que celebra la vida, las raíces y los pequeños momentos de esperanza. Su experiencia docente se refleja en un tono cercano y profundamente humano.`
+        ]
+      },
+      {
+        id:10,
+        name:'Jaime Espinoza Arrieta',
+        photo:'photos/10.jpg',
+        bio:'Licenciado en Educación y magíster. Escritor de cuentos juveniles, narraciones de corte social y novelas breves ambientadas en la sierra central. Su obra destaca por la sensibilidad humana, el humor escolar y la reflexión sobre la memoria y la comunidad.',
+        
+        books:[
+          'Aventuras en la mancha',
+          'Aventuras en el cole',
+          'Las memorias de tu olvido',
+          'Rafa, el Rata',
+          'El encanto de mi Pueblo',
+          'Cuatro formas de vivir y contar'
+        ],
+
+        reviews:[
+                `Colección de cuentos juveniles pensada para estudiantes de secundaria. El autor retrata anécdotas escolares con humor, frescura y pequeños aprendizajes que reflejan la vida estudiantil: amistades, malentendidos y descubrimientos propios de la adolescencia. Con un lenguaje ágil y cercano, el libro resulta especialmente atractivo para jóvenes lectores.`,
+                `Volumen de ocho relatos breves que continúa la línea temática sobre vivencias escolares. Su estilo combina humor, convivencia, primeros afectos y travesuras cotidianas. Concebido para adolescentes, el libro utiliza situaciones reconocibles del colegio para fomentar la reflexión sobre el compañerismo y el crecimiento personal. Registrado con ISBN en la Biblioteca Nacional.`,
+                `Novela breve situada en Cerro de Pasco que aborda un crimen —la violación y asesinato de una joven— y las repercusiones sociales y personales que deja en la comunidad. Con un ritmo ágil, el relato entrelaza investigación, memoria y denuncia social, explorando cómo el olvido y el recuerdo moldean a víctimas, testigos y entorno. Publicada por Apogeo con registro ISBN reciente.`,
+                `Cuento publicado en la revista literaria *La Noche infinita* (1999). Narra la vida escolar de Rafa, un adolescente apodado “el Rata”, quien es marginado por su apariencia y sus pequeños hurtos. A través de una narración en primera persona, el relato revela la realidad familiar marcada por el abandono y sorprende con un acto de valentía que obliga a los compañeros a replantear el respeto y la empatía. Es un texto crudo, tierno y profundamente humano.`,
+                `Relato testimonial incluido en *Experiencias Pedagógicas* (UGEL Daniel Carrión, 2003). El autor combina memoria, identidad cultural y reflexión educativa mediante escenas que evocan fiestas patronales, caminatas por los cerros y la solidaridad vecinal. Propone una pedagogía que parta del entorno cultural del estudiante, resaltando la belleza y los desafíos de la escuela rural altoandina.`,
+                `Participación como coautor y/o coordinador en la antología publicada por Graphito (2004). El volumen reúne relatos y ensayos que dialogan con diversas formas de narración contemporánea. Espinoza Arrieta contribuye con textos que exploran enfoques literarios y experiencias narrativas, formando parte de un proyecto colaborativo de creación e investigación literaria.`
+        ]
+      },
+      {
+        id:11,
+        name:'El Príncipe Solitario Bralic',
+        photo:'photos/11.jpg',
+        bio:'Ingeniero civil, artista gráfico y productor de animación. Autor de cómics que fusionan mitología, fantasía y reflexión ética. Su estilo se caracteriza por dibujos dinámicos, mundos simbólicos y narrativas heroicas con profundidad emocional.',
+        
+        books:[
+          'Ipherkal, el rayo encarnado',
+          'Los Símbolos de la Justicia',
+          'El poder de Hipercuy'
+        ],
+
+        reviews:[
+              `Cómic que presenta a Ipherkal, un joven guerrero con poderes eléctricos sobrenaturales cuyo destino está vinculado a antiguos dioses de tormentas. La trama mezcla acción, fantasía y mitología andina, mientras el protagonista aprende a dominar su rayo interior y enfrenta cultos oscuros que buscan usar su poder. La obra combina escenas épicas con momentos introspectivos, explorando temas como la identidad, la responsabilidad y el sacrificio. El arte es vibrante, lleno de relámpagos y detalles visuales dinámicos.`,
+              `En este cómic, el autor construye un universo de superhéroes donde los símbolos que portan los protagonistas representan ideales éticos: la balanza, el puño, la pluma, el escudo. Cuando surge una amenaza global que corrompe incluso los valores más puros, los héroes deben defender no solo al mundo, sino el significado mismo de la justicia. La narrativa aborda dilemas morales —justicia como castigo, redención o libertad— acompañados de un arte que hace evolucionar visualmente los símbolos según las dudas y madurez de cada personaje. Es una historia que combina acción con reflexión profunda.`,
+              `Cómic proyectado para su publicación en la Feria del Libro 2025. Presenta a Hipercuy, un cuy con superpoderes que vive en un pequeño pueblo andino. Tras un evento extraordinario durante una tormenta, adquiere habilidades como supervelocidad, salto cuántico y un grito sónico capaz de resonar en toda la montaña. Con humor y calidez, la historia aborda temas como la humildad, el valor comunitario y la defensa del territorio frente a amenazas externas. El arte combina paisajes andinos con elementos fantásticos, generando un contraste atractivo que promete una aventura inspiradora y creativa.`
+        ]
+      },
+      {
+        id:12,
+        name:'Alejandro Padilla Mayuntupa',
+        photo:'photos/12.jpg',
+        bio:'Autor de cuentos infantiles, cuentos mineros, novela histórica y publicaciones culturales regionales. Editor y colaborador en revistas de literatura pasqueña. Su obra combina memoria, identidad minera y tradición oral con narrativa contemporánea.',
+        
+        books:[
+          'Gaviota de Metal',
+          'Las aventuras de Lamparita y sus amigos',
+          'Lamparita salvando a las luciérnagas',
+          'Lamparita en busca del gran tesoro',
+          'La Rosa de Plata',
+          'Amor, Soledad y Nieve',
+          'Rostros de Cobre',
+          'Mineros Metamorfos',
+          'Veta Literaria',
+          'Cuentos Pasqueños'
+        ],
+
+        reviews:[
+              `Colección de cuentos mineros que retrata la dureza del trabajo en el subsuelo, la convivencia con el peligro y la lucha cotidiana por la dignidad. A través de personajes marcados por la minería, el autor muestra la hostilidad y la esperanza que coexisten en la vida minera de Cerro de Pasco. Publicado por Editorial San Marcos, es un volumen que forma parte de la tradición narrativa minera peruana.`,
+              `Libro infantil que narra las peripecias de Raúl y “Lamparita” en un entorno minero. Entre caídas a socavones y encuentros con seres fantásticos —Muqui, fantasmas y diablos—, la obra mezcla leyendas andinas con aventura y mensaje educativo. Ha sido parte de planes lectores regionales y es una de las obras infantiles más difundidas del autor.`,
+              `Antología infantil que retoma al personaje de Lamparita en relatos vinculados a la ecología, la ternura y valores comunitarios. Ambientada en la zona altoandina, la obra integra mitos y tradiciones pasqueñas con mensajes de cuidado ambiental y solidaridad. Muy presente en catálogos regionales de Plan Lector.`,
+              `Nueva entrega de la saga de Lamparita, centrada en la búsqueda de un “gran tesoro” que funciona como pretexto narrativo para recorrer vivencias, mitos y memorias de Cerro de Pasco. Publicada por editoriales regionales (Lexicom / San Marcos), consolida al personaje como figura emblemática de la literatura infantil pasqueña.`,
+              `Novela histórico-literaria de más de 500 páginas registrada con ISBN (Editorial San Marcos, 2010). Aunque no circula una sinopsis detallada en línea, está catalogada como novela de la tradición peruana y figura en bibliotecas y registros de venta. Es una obra extensa que evidencia el trabajo narrativo de largo aliento del autor.`,
+              `Colección de cinco cuentos juveniles ambientados en Cerro de Pasco y escritos originalmente en los años setenta. Los relatos abordan conflictos juveniles desde un enfoque realista y simbólico, con personajes de fuerte carga emocional y social. Integrado en colecciones de fomento lector regional.`,
+              `Conjunto de nuevos cuentos mineros que continúan la exploración del autor sobre la vida extractiva. Los relatos revelan los “rostros” humanos detrás del trabajo minero: identidades, sufrimiento, memoria y conflicto socioambiental. Registrado en catálogos nacionales como parte de la narrativa social contemporánea.`,
+              `Saga de cuentos publicada en 2020, centrada en metamorfosis (literales y simbólicas) dentro de contextos mineros. La obra explora cómo la minería transforma cuerpos, espacios y vínculos comunitarios, manteniendo la línea temática del autor en torno a identidad y territorio.`,
+              `Revista cultural de letras y artes (1997–2005) donde el autor participó como escritor, editor y organizador. Reúne textos literarios, crítica cultural y colaboraciones que impulsaron la difusión de la literatura pasqueña durante casi una década.`,
+              `Revista cultural regional activa entre 2004 y 2024, dedicada a literatura y artes de Pasco. Padilla ha sido colaborador, editor y figura asociada desde sus inicios. La revista funciona como archivo cultural y plataforma de difusión para autores locales, consolidando la memoria literaria regional.`
+        ]
+      },
+      {
+        id:13,
+        name:'Josué Aurelio Sarmiento Chaca',
+        photo:'photos/13.jpg',
+        bio:'Investigador y narrador pasqueño dedicado a rescatar la memoria histórica y cultural de Cerro de Pasco. Su obra destaca por su lenguaje accesible y su interés en revalorar la identidad minera y la riqueza humana de la ciudad.',
+        
+        books:[
+          'Riqueza y Orgullo del Cerro de Pasco'
+        ],
+
+        reviews:[
+              `Libro que reúne relatos, memorias e información histórica sobre la ciudad de Cerro de Pasco. El autor muestra cómo la minería ha moldeado la vida y el carácter de sus habitantes, desde sus orígenes hasta su desarrollo industrial. Incluye historias de familias, mineros y personajes tradicionales que representan la fortaleza cerreña. Con un lenguaje sencillo y cercano, resalta que la verdadera riqueza de la ciudad está en su gente, sus costumbres y su historia. Es un homenaje sentido a la identidad y resistencia de Cerro de Pasco.`
+        ]
+      },
+      {
+        id:14,
+        name:'Cristian Tolentino',
+        photo:'photos/14.jpg',
+        bio:'Narrador y dramaturgo que explora la condición humana desde escenarios costeros y andinos. Su obra combina sensibilidad social, simbolismo y profundidad psicológica, retratando personajes que enfrentan adversidad, tradición y conflicto interno.',
+        
+        books:[
+          'Patas de palo',
+          'La danza inmortal',
+          'Incierto destino',
+          'Los ojos de la demencia'
+        ],
+
+        reviews:[
+
+              `Narración intensa sobre Santiago, un joven pescador que pierde una pierna y debe reconstruirse entre la limitación física y el prejuicio social. La obra combina paisajes costeros con una reflexión profunda sobre identidad, dignidad y resiliencia. Tolentino retrata al protagonista con humanidad y contradicción, mostrando su lucha interna por volver a sentirse útil en un mundo que lo mira con compasión y recelo.`,
+              `Pieza teatral de atmósfera ritual y mística ambientada en un pueblo andino. La historia aborda el choque entre tradición y modernidad a través del retorno de Huayna, quien cuestiona el sentido de una danza ancestral. Tolentino construye una puesta cargada de símbolos, silencios y tensión emocional, invitando a reflexionar sobre la fe, el legado cultural y el costo de romper con los rituales que sostienen a la comunidad.`,
+              `Drama social centrado en una familia afectada por el colapso económico de una ciudad portuaria. Clara, Marco y Esteban enfrentan decisiones difíciles mientras consideran migrar para sobrevivir. Tolentino crea un teatro realista con diálogos sinceros que muestran cómo la incertidumbre puede unir o fracturar a las personas. Es una obra conmovedora que examina esperanza, sacrificio y miedo ante lo desconocido.`,
+              `Thriller psicológico que explora la frontera entre la cordura y la locura. Rodrigo, un psiquiatra atormentado por la herencia familiar de una enfermedad mental, empieza a sospechar comportamientos inquietantes en su esposa Isabel. Ambientada en una casa antigua llena de sombras y silencios, la obra usa monólogos y luces dramáticas para sumergir al espectador en la mente del protagonista. Su final abierto intensifica la duda sobre qué es real y qué es producto del miedo.`
+        ]
+      },
+      {
+        id:15,
+        name:'Edmundo Américo Reyes Capcha',
+        photo:'photos/15.jpg',
+        bio:'Investigador regional dedicado a la microhistoria, tradición andina y memoria sociocultural de Pasco. Su obra reconstruye procesos locales mediante archivos, testimonios y análisis histórico, resaltando el rol de las comunidades en procesos nacionales y regionales.',
+
+        books:[
+          'San Pedro de Pillao en la Historia y en Chaupihuaranga',
+          'Éxodo Retrospectivo de la Provincia Daniel Alcides Carrión',
+          'Participación de los Pueblos de la Región Pasco en la Independencia del Perú y en la Guerra con Chile',
+          'Aporte de los Pueblos y Participación de los Montoneros de Huánuco, Pasco y Los Reyes en la Batalla de Junín'
+        ],
+
+        reviews:[
+
+              `Estudio local y etnográfico que recupera la memoria histórica de San Pedro de Pillao y su entorno inmediato en Chaupihuaranga. A partir de documentos comunales, testimonios orales y archivos municipales, el autor reconstruye procesos de asentamiento, prácticas festivas, organización social y momentos significativos de la vida comunitaria. Su propósito es preservar la microhistoria andina y ofrecer un texto accesible para lectores locales y estudiosos de la región.`,
+              `Obra que combina historia regional y arqueología interpretativa para explicar los movimientos poblacionales y transformaciones socioculturales en la provincia Daniel Alcides Carrión. Reyes Capcha analiza migraciones internas, cambios territoriales y factores económicos —como minería y agricultura— dentro del marco histórico-cultural de la nación Yaros, planteando una mirada integral del pasado regional.`,
+              `Investigación que examina la participación de los pueblos pasqueños en dos momentos cruciales del Perú: la independencia y la Guerra con Chile. El autor rescata episodios y actores frecuentemente invisibilizados por las narrativas nacionales, destacando montoneras, oficiales locales, redes de apoyo y las consecuencias sociales que estos conflictos dejaron en las comunidades de Pasco.`,
+              `Estudio reciente que reivindica el rol de los montoneros de Huánuco, Pasco y Los Reyes en la decisiva Batalla de Junín. Reyes Capcha documenta la participación de fuerzas irregulares y acciones previas al combate que contribuyeron al triunfo patriota. La obra pone en valor aportes locales que la historiografía tradicional suele pasar por alto, reforzando la importancia regional en la gesta emancipadora.`
+        ]
+      },
+      {
+        id:16,
+        name:'Alex Nelson Tucto Villanueva',
+        photo:'photos/16.jpg',
+        bio:'Investigador, escritor y cronista de la historia minera y social de Pasco. Su obra combina narrativa histórica, memoria comunitaria y documentación archivística, destacándose por reconstruir identidades locales, procesos mineros y experiencias humanas vinculadas al territorio andino.',
+
+        books:[
+          'Estrella caída – Ccuyllur ishquishga',
+          'Cerro de Pasco Tierra Minera I',
+          'Gran pasado histórico de Tusi, el pueblo caminante',
+          'Paragsha: Historia, cultura, minería y medio ambiente',
+          'Veinte cuentos Goyllarinos',
+          'La Oroya: Historia de la ciudad metalúrgica',
+          'Cerro de Pasco Tierra Minera II',
+          'Sobre Rieles a la Sierra Central del Perú',
+          'Revista El Diamante – Ediciones 1 al 17',
+          'Revista Lucero Goyllarino – Nº 4'
+        ],
+
+        reviews:[
+
+      `Relato histórico y cultural sobre el distrito de Goyllarisquizga, cuyo nombre quechua significa “estrella caída”. El autor combina memoria colectiva, testimonios familiares y análisis social de la relación entre minería, identidad y vida comunitaria. La obra rescata raíces, historias y luchas de un pueblo marcado por la actividad minera y por la persistencia de sus tradiciones.`,
+
+      `Investigación profunda sobre los orígenes y evolución de la minería en Cerro de Pasco. Analiza la era colonial, la explotación de la plata, relatos locales y testimonios inéditos. El autor rescata voces de mineros y pobladores, revelando la dimensión humana detrás del desarrollo minero y su impacto social, cultural y económico.`,
+
+      `Obra que reconstruye la identidad histórica del distrito de Santa Ana de Tusi, el “pueblo caminante”. A través de documentos, entrevistas y memoria oral, describe migraciones, etapas prehispánicas y coloniales, costumbres y la construcción cultural del territorio. Es una afirmación identitaria dirigida a lectores locales y estudiosos regionales.`,
+
+      `Análisis histórico y sociocultural de Paragsha, uno de los espacios más afectados por la actividad minera contemporánea. El autor combina testimonios, conflictos ambientales, memoria comunal y reflexión sobre la identidad. La obra visibiliza los costos humanos y ecológicos de la minería, y la resistencia de la comunidad frente al impacto extractivo.`,
+
+      `Reunión de veinte cuentos ambientados en Goyllarisquizga, que retratan con ternura y honestidad la vida de niños, mineros, mujeres y ancianos. El autor presenta la dureza de la vida minera, pero también la dignidad y sensibilidad de la comunidad, convirtiendo el libro en un valioso aporte literario y educativo.`,
+
+      `Estudio histórico y social de La Oroya, ciudad metalúrgica emblemática del Perú. Examina su formación, su crecimiento industrial y los efectos sociales y ambientales de la actividad metalúrgica. La narrativa combina archivos, entrevistas y análisis crítico para retratar las luces y sombras del desarrollo extractivo.`,
+
+      `Continuación de su obra sobre Cerro de Pasco, centrada en transformaciones modernas, memorias mineras y desigualdades sociales. El autor profundiza en la resistencia comunitaria y en los cambios del extractivismo contemporáneo. Es una obra accesible, con enfoque académico y testimonial.`,
+
+      `Libro visual e histórico sobre el ferrocarril central y su impacto en la sierra central del Perú. Describe la construcción del tren, su influencia en la economía, la movilidad y la cultura de las comunidades andinas. El autor rescata el valor simbólico y nostálgico del ferrocarril como motor del progreso y memoria colectiva.`,
+
+      `Ediciones 1 al 17 de la revista cultural El Diamante, dirigidas y editadas por el autor, dedicadas a memoria histórica, identidad local, personajes, centros poblados y hechos relevantes de Pasco. Son un archivo cultural esencial que documenta tradiciones, celebraciones y procesos sociales de la región.`,
+
+      `Número 4 de la revista Lucero Goyllarino, enfocada en temas académicos y memoria goyllarina. Bajo la dirección editorial del autor, refuerza la difusión cultural y la preservación histórica de la comunidad.`
+        ]
+      },
+
+     {
+      id:17,
+      name:'Elmer Baldeón Diego',
+      photo:'photos/17.jpg',
+      bio:'Docente, poeta e investigador de la cultura quechua y de la tradición vilcabambina. Su obra integra poesía, etnomusicología, educación intercultural y rescate de la memoria local. Destaca por su trabajo en lengua quechua, materiales didácticos y estudios sobre identidad y patrimonio cultural.',
+
+      books:[
+        'PIRWA — Poema andino',
+        'Campohuaylash y su influencia en la educación',
+        'PAKARINA — Poesía (Quechua)',
+        'La Nunca y Jamás Rendida — Vilcabamba',
+        'LLAQTA WATUCHIKUNA — Adivinanzas quechuas',
+        'Diccionario Quechua Central — Shimi Rimayninchi'
+      ],
+
+      reviews:[
+
+    `Poema de tradición andina que combina imágenes de la tierra, la memoria y los oficios campesinos mediante un diálogo quechua–español. La voz poética evoca montañas, lluvias y ritos comunitarios, con un tono ritual y testimonial. Las repeticiones y la economía verbal otorgan musicalidad oral, ideal para declamación y encuentros culturales.`,
+
+    `Estudio etnomusicológico–pedagógico que analiza el “campo huaylash” como expresión cultural de Vilcabamba y como herramienta para la educación local. Ofrece historia, transcripción musical y propuestas didácticas para integrar el huaylash en el currículo escolar, resaltando su valor identitario, artístico y formativo.`,
+
+    `Conjunto de poemas en quechua (runasimi) centrados en el origen, la memoria y la continuidad cultural. La obra privilegia la oralidad, la sonoridad y las imágenes ceremoniales vinculadas al mundo andino. Pensada para lectores bilingües o hablantes nativos, emplea traducciones fieles al sentido poético y comunitario.`,
+
+    `Relato poético–histórico que retrata episodios de resistencia y recuperación social en Vilcabamba. Combina crónica local, prosa lírica y testimonios para construir una memoria afectiva del pueblo y sus protagonistas. Es útil para actividades escolares y proyectos de memoria histórica.`,
+
+    `Compilación de adivinanzas quechuas (watuchikuna) con traducción y notas didácticas. Incluye variantes dialectales, usos tradicionales y propuestas para trabajar en aulas interculturales bilingües. Rescata la tradición lúdica andina y fortalece la transmisión del idioma a nuevas generaciones.`,
+
+    `Diccionario del quechua central que reúne léxico básico y especializado con ejemplos, equivalencias en español y notas gramaticales. Es una herramienta práctica para docentes, estudiantes y traductores, ampliamente reconocida y registrada con ISBN en catálogos nacionales. Facilita la enseñanza y documentación del runasimi.`
+      ]
+    },
+    {
+      id:18,
+      name:'(Autor 18)',
+      photo:'photos/18.jpg',
+      bio:'Poeta y narrador de la sierra central cuya obra combina sensibilidad lírica, identidad andina y elementos míticos regionales. Su estilo destaca por integrar emociones íntimas con paisajes de altura, así como por incorporar figuras tradicionales como el muqui dentro de relatos contemporáneos.',
+
+      books:[
+        'Un beso en la púrpura nieve',
+        'Te amo en tu amanecer',
+        'El muqui viene a mi colegio a jugar ajedrez'
+      ],
+
+      reviews:[
+
+    `Poemario que fusiona lirismo íntimo con paisajes andinos, donde la nieve se convierte en símbolo emocional de memoria, herida y belleza. Los versos, de tono contemplativo y musicalidad pausada, construyen imágenes en las que la “púrpura nieve” representa el encuentro entre el frío de la cordillera y la intensidad del amor.`,
+
+    `Cuento breve que narra el despertar afectivo entre dos jóvenes en un pueblo serrano. El amanecer funciona como metáfora del inicio del amor y del descubrimiento personal. El relato destaca por su sencillez poética, su calidez emocional y su evocación de la naturaleza como testigo de la sensibilidad juvenil.`,
+
+    `Relato que mezcla humor, fantasía andina y vida escolar contemporánea. Un niño descubre que el mítico muqui visita su colegio para jugar ajedrez, enseñando estrategia, paciencia y respeto por la tradición. Es un cuento atractivo para niños y docentes, que revaloriza la cultura minera dentro de un contexto cotidiano y educativo.`
+      ]
+    },
+    {
+      id:19,
+      name:'Gustavo Atilio Córdova Guadalupe',
+      photo:'photos/19.jpg',
+      bio:'Escritor, productor cultural y defensor de la identidad pasqueña. Desde Cerro de Pasco, ha dedicado más de tres décadas a la difusión cultural a través del programa Estampas Pasqueñas, convirtiéndolo en un espacio de memoria, resistencia y orgullo regional. Su obra busca narrar a Pasco desde la voz de su propia gente, preservando tradiciones, arte y patrimonio.',
+
+      books:[
+        'Huaraucaca: historia, identidad y emprendimiento',
+        'Revista Cultura Tiempo',
+        'Revista Herranza Andina en el Bicentenario',
+        'Afiche en honor al Señor de Exaltación',
+        'Afiche en honor a la Virgen del Rosario',
+        'Afiche Histórico de Pasco',
+        'Afiche de la Herranza Andina',
+        'Afiche de la Chunguinada',
+        'Afiche de la llegada del primer tren de pasajeros (1904)',
+        'Afiche Calixtrada Cerreña 2025',
+        'Afiche Awki Danza'
+      ],
+
+      reviews:[
+
+    `Obra mayor en la que el autor rescata la memoria histórica y cultural de Huaraucaca. Explora el proceso de repartición de tierras del ex latifundio Algolan, la identidad minera del pueblo y el espíritu emprendedor de sus empresas comunales. Es un trabajo que combina archivo, testimonios y una mirada profunda a las raíces locales.`,
+
+    `Publicación cultural nacida desde su labor en Estampas Pasqueñas, dedicada a difundir arte, historia y tradición regional. La revista funciona como plataforma para preservar narraciones comunitarias y fortalecer la identidad pasqueña.`,
+
+    `Edición especial elaborada para el Bicentenario, centrada en la tradición de la Herranza Andina. Combina historia, simbolismo ritual y actualidad cultural, reafirmando la vigencia de esta expresión artística en la región.`,
+
+    `Serie de afiches dedicados al Señor de Exaltación, concebidos como homenajes visuales a una de las celebraciones más importantes del calendario religioso local. Destacan por su valor patrimonial y su papel en la preservación gráfica de la fe cerreña.`,
+
+    `Afiche dedicado a la Virgen del Rosario, que recoge elementos devocionales y estéticos propios de la tradición andina y del imaginario pasqueño. Una pieza que combina arte visual y memoria festiva.`,
+
+    `Afiche que presenta una síntesis visual de la trayectoria histórica de Pasco: sus momentos clave, sus personajes y su identidad minera. Funciona como material divulgativo, patrimonial y educativo.`,
+
+    `Afiche que celebra y documenta la Herranza Andina, resaltando danzas, vestimentas, música y ritualidad agrícola. Es uno de los aportes más importantes del autor al registro cultural regional.`,
+
+    `Afiche dedicado a la Chunguinada, danza emblemática del folclore cerreño. El autor logra capturar la fuerza estética y musical del baile, preservando un ícono de la identidad local.`,
+
+    `Afiche histórico que conmemora la llegada del primer tren de pasajeros en 1904. Es un documento gráfico que rescata un hito fundamental en la transformación económica y social de la región.`,
+
+    `Afiche dedicado a la Calixtrada Cerreña 2025, elaborado con sentido celebratorio y patrimonial. Destaca por su diseño y por su compromiso con la promoción de tradiciones contemporáneas.`,
+
+    `Afiche Awki Danza que rinde homenaje a esta expresión ritual y ancestral. Representa una síntesis entre tradición, memoria y fuerza simbólica del mundo andino.`
+      ]
+    },
+
+    ];
+
+    const grid = document.getElementById('grid');
+    const search = document.getElementById('search');
+    const sort = document.getElementById('sort');
+
+    function render(list){
+      grid.innerHTML = '';
+      list.forEach(w => {
+        const card = document.createElement('article');
+        card.className = 'card bg-slate-800/30 p-4 rounded-2xl shadow-md';
+        card.setAttribute('data-aos','fade-up');
+        card.innerHTML = `
+          <div class="flex items-center gap-4">
+            <img src="${w.photo}" alt="${w.name}" class="avatar">
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold serif">${w.name}</h3>
+              <p class="text-sm text-slate-300 mt-1 line-clamp-2">${w.bio}</p>
+              <div class="mt-3 flex items-center gap-2">
+                <button class="openBtn px-3 py-1 rounded-md bg-amber-700/90 text-white">Ver ficha</button>
+                <span class="text-xs text-slate-400">${w.books.length} libro(s)</span>
+              </div>
+            </div>
+          </div>
+        `;
+        card.querySelector('.openBtn').addEventListener('click',()=>openModal(w));
+        grid.appendChild(card);
+      });
+      AOS.refresh();
+    }
+
+    function openModal(w){
+      document.getElementById('modal').style.display = 'flex';
+      const avatar = document.getElementById('modalAvatar');
+      avatar.src = w.photo;
+      avatar.alt = w.name;
+      const nameEl = document.getElementById('modalName');
+      nameEl.textContent = w.name;
+      // restart typewriter animation
+      nameEl.classList.remove('typewriter');
+      void nameEl.offsetWidth;
+      nameEl.classList.add('typewriter');
+
+      document.getElementById('modalBio').textContent = w.bio;
+      const mb = document.getElementById('modalBooks');
+      mb.innerHTML = '';
+      w.books.forEach((b, idx)=>{
+        const el = document.createElement('div');
+        el.className = 'book-chip';
+        el.textContent = b;
+        el.setAttribute('role','listitem');
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', ()=> openBook(w, b, idx));
+        mb.appendChild(el);
+      });
+    }
+
+    document.getElementById('closeModal').addEventListener('click',()=>{ document.getElementById('modal').style.display='none'; });
+    document.getElementById('modal').addEventListener('click',(e)=>{ if(e.target.id==='modal') document.getElementById('modal').style.display='none' });
+
+    function applyFilters(){
+      const q = search.value.trim().toLowerCase();
+      let filtered = writers.filter(w=>{
+        return w.name.toLowerCase().includes(q) || w.bio.toLowerCase().includes(q) || w.books.join(' ').toLowerCase().includes(q)
+      });
+      if(sort.value==='books') filtered = filtered.sort((a,b)=>b.books.length - a.books.length);
+      else filtered = filtered.sort((a,b)=>a.name.localeCompare(b.name));
+      render(filtered);
+    }
+    search.addEventListener('input',applyFilters);
+    sort.addEventListener('change',applyFilters);
+
+    render(writers);
+
+    const qrBtn = document.getElementById('qrBtn');
+    const qrPanel = document.getElementById('qrPanel');
+    const qrImage = document.getElementById('qrImage');
+    qrBtn.addEventListener('click',()=>{
+      const site = prompt('Pega la URL pública donde publicarás el sitio (ej: https://usuario.github.io/repo/)', 'https://tuusuario.github.io/tu-repo/');
+      if(!site) return;
+      const qrsrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(site)}`;
+      qrImage.src = qrsrc;
+      qrPanel.classList.toggle('hidden');
+    });
+
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ document.getElementById('modal').style.display='none'; document.getElementById('bookModal').style.display='none'; qrPanel.classList.add('hidden'); }});
+
+    // Open book detail (cover + breve reseña)
+    function openBook(author, bookTitle, idx){
+      const bm = document.getElementById('bookModal');
+      const cover = document.getElementById('bookCover');
+      const title = document.getElementById('bookTitle');
+      const authorEl = document.getElementById('bookAuthor');
+      const reviewEl = document.getElementById('bookReview');
+
+      // Try structured cover path: photos/covers/{authorId}_{idx+1}.jpg
+      const coverPath = `photos/covers/${author.id}_${idx+1}.jpg`;
+      cover.src = coverPath;
+      // if image fails to load, fallback to author's photo
+      cover.onerror = () => { cover.src = author.photo; };
+
+      title.textContent = bookTitle;
+      authorEl.textContent = `Por ${author.name}`;
+
+      // Usar reseña real si existe en author.reviews
+      let reseña = '';
+      if (author.reviews && Array.isArray(author.reviews) && typeof author.reviews[idx] === 'string' && author.reviews[idx].trim() !== '') {
+        reseña = author.reviews[idx];
+      }
+
+      if (!reseña) {
+        // texto por defecto si no hay reseña real
+        reseña = `"${bookTitle}" es una obra de ${author.name} que invita a leer con nostalgia y reflexión. Aquí puedes agregar una reseña más detallada sobre el contenido, temas y contexto del libro.`;
+      }
+
+      reviewEl.textContent = reseña;
+      bm.style.display = 'flex';
+    }
+
+    document.getElementById('closeBookModal').addEventListener('click', ()=>{ document.getElementById('bookModal').style.display='none'; });
+    document.getElementById('bookModal').addEventListener('click',(e)=>{ if(e.target.id==='bookModal') document.getElementById('bookModal').style.display='none' });
+</script>
+</body>
+</html>
